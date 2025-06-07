@@ -2,30 +2,58 @@
 
 A lightweight, easy-to-use STM32 library for interfacing with the InvenSense TDK MPU6500 6-axis motion tracking device. This library provides functions to read accelerometer and gyroscope data, and handle interrupts—allowing you to build motion-sensing and stabilization applications on STM32 microcontrollers.
 
+## Table of Contents
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+  - [Initialization](#initialization)
+  - [Reading Sensor Data](#reading-sensor-data)
+  - [Data Formats](#data-formats)
+  - [Interrupt Handling](#interrupt-handling)
+- [Error Handling](#error-handling)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
 ## Features
 
 - Initialize and configure MPU6500 via I²C  
 - Read 3-axis accelerometer and gyroscope data   
-- Configure full-scale ranges (±2/4/8/16 g; ±250/500/1000/2000 °/s)
+- Configure full-scale ranges:
+  - Accelerometer: ±2/4/8/16 g
+  - Gyroscope: ±250/500/1000/2000 °/s
 - Data-ready interrupt generation
-- Compatible with STM32 HAL drivers  
+- Temperature sensor reading
+- Compatible with STM32 HAL drivers
+- Low power consumption modes
+- Built-in self-test functionality
 
 ## Prerequisites
 
-- STM32 microcontroller  
-- STM32Cube HAL drivers installed  
-- I²C peripheral configured in your project  
-- Power supply and wiring to MPU6500 per datasheet  
+- STM32 microcontroller (F0, F1, F3, F4, F7, L0, L1, L4 series supported)
+- STM32Cube HAL drivers installed
+- I²C peripheral configured in your project
+- Power supply and wiring to MPU6500 per datasheet
+- Basic understanding of STM32 development
 
 ## Installation
 
 1. Clone this repository into your project directory:  
    ```bash
    git clone https://github.com/<your-username>/mpu6500-stm32-library.git
+   ```
 
-2. Copy mpu6500.c and mpu6500.h into your source and include folders.
+2. Copy the following files into your project:
+   - `mpu6500.c` → Your project's source folder
+   - `mpu6500.h` → Your project's include folder
 
-3. Configure your pin definitions in main.h.
+3. Configure your pin definitions in `main.h`:
+   ```c
+   #define MPU6500_INT_Pin        GPIO_PIN_0
+   #define MPU6500_INT_GPIO_Port  GPIOA
+   ```
 
 ## Configuration
 
@@ -34,12 +62,13 @@ The library is configured with the following default settings:
 - Gyroscope: ±2000°/s full-scale range
 - Sample Rate: 1kHz
 - Bandwidth: 20Hz
+- Clock Source: Internal oscillator
+- Sleep Mode: Disabled
+- Interrupts: Disabled
 
 ## Usage
 
 ### Initialization
-
-Before using the MPU6500, you need to:
 
 1. Configure I²C in your STM32 project:
 ```c
@@ -57,8 +86,12 @@ int main(void)
     // ... rest of your initialization code
 }
 ```
+2. **Include the Library**: Add the library header to your project.
+   ```c
+   #include "mpu6500.h"
+   ```
 
-2. Initialize the MPU6500:
+3. Initialize the MPU6500:
 ```c
 HAL_StatusTypeDef status;
 
@@ -76,28 +109,7 @@ if(status != HAL_OK || whoami != 0x70){
 }
 ```
 
-3. Configure interrupts (optional):
-```c
-// Enable data ready interrupts
-status = MPU6500_EnableDataReadyInterrupts();
-if(status != HAL_OK){
-    Error_Handler();
-}
-
-// Configure your GPIO interrupt handler
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-    if(GPIO_Pin == MPU6500_INT_Pin)
-    {
-        // Handle data ready interrupt
-        // Read sensor data here
-    }
-}
-```
-
 ### Reading Sensor Data
-
-The MPU6500 provides raw sensor data in 16-bit format. Here's how to read and convert the data:
 
 ```c
 int16_t accel_x, accel_y, accel_z;
@@ -138,7 +150,7 @@ gyro_dps[2] = (float)gyro_z / 16.4f;
 temp_c = ((float)temperature / 340.0f) + 36.53f;
 ```
 
-#### Data Formats
+### Data Formats
 
 1. **Accelerometer Data**
    - Raw data range: -32768 to +32767
@@ -160,10 +172,18 @@ temp_c = ((float)temperature / 340.0f) + 36.53f;
    - Raw data range: -32768 to +32767
    - Conversion formula: T(°C) = (TEMP_OUT / 340) + 36.53
 
-#### Reading Data in Interrupt Mode
+### Interrupt Handling
 
-When using data-ready interrupts, you can read the data in the interrupt handler:
+1. Configure interrupts:
+```c
+// Enable data ready interrupts
+status = MPU6500_EnableDataReadyInterrupts();
+if(status != HAL_OK){
+    Error_Handler();
+}
+```
 
+2. Set up interrupt handler:
 ```c
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -190,16 +210,28 @@ All functions return `HAL_StatusTypeDef`:
 - `HAL_BUSY`: Device is busy
 - `HAL_TIMEOUT`: Operation timed out
 
+Common error scenarios:
+- I²C communication failure
+- Invalid device address
+- Sensor not responding
+- Configuration errors
+
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please follow these steps:
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
 - InvenSense TDK for the MPU6500 sensor
-- STMicroelectronics for the STM32 HAL drivers 
+- STMicroelectronics for the STM32 HAL drivers
+- All contributors who have helped improve this library
 
