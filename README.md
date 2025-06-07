@@ -35,6 +35,68 @@ The library is configured with the following default settings:
 - Sample Rate: 1kHz
 - Bandwidth: 20Hz
 
+## Usage
+
+### Initialization
+
+Before using the MPU6500, you need to:
+
+1. Configure I²C in your STM32 project:
+```c
+// In your main.c or system initialization
+I2C_HandleTypeDef hi2c1;
+
+void SystemClock_Config(void);
+static void MX_I2C1_Init(void);
+
+int main(void)
+{
+    HAL_Init();
+    SystemClock_Config();
+    MX_I2C1_Init();
+    // ... rest of your initialization code
+}
+```
+
+2. Initialize the MPU6500:
+```c
+HAL_StatusTypeDef status;
+
+// Basic initialization
+status = MPU6500_Init();
+if(status != HAL_OK){
+    Error_Handler();
+}
+
+// Optional: Read WHO_AM_I register to verify communication
+uint8_t whoami;
+status = MPU6500_ReadWhoAmI(&whoami);
+if(status != HAL_OK || whoami != 0x70){
+    Error_Handler();
+}
+```
+
+3. Configure interrupts (optional):
+```c
+// Enable data ready interrupts
+status = MPU6500_EnableDataReadyInterrupts();
+if(status != HAL_OK){
+    Error_Handler();
+}
+
+// Configure your GPIO interrupt handler
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if(GPIO_Pin == MPU6500_INT_Pin)
+    {
+        // Handle data ready interrupt
+        // Read sensor data here
+    }
+}
+```
+
+### Reading Sensor Data
+
 ## Error Handling
 
 All functions return `HAL_StatusTypeDef`:
