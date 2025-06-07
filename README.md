@@ -23,11 +23,36 @@ A lightweight, easy-to-use STM32 library for interfacing with the InvenSense TDK
    ```bash
    git clone https://github.com/<your-username>/mpu6500-stm32-library.git
 
-
 2. Copy mpu6500.c and mpu6500.h into your source and include folders.
 
 3. Configure your pin definitions in main.h.
 
-## Usage
+## Configuration
 
-### Initialization
+The library is configured with the following default settings:
+- Accelerometer: ±16g full-scale range
+- Gyroscope: ±2000°/s full-scale range
+- Sample Rate: 1kHz
+- Bandwidth: 20Hz
+
+## Error Handling
+
+All functions return `HAL_StatusTypeDef`:
+- `HAL_OK`: Operation successful
+- `HAL_ERROR`: Operation failed
+- `HAL_BUSY`: Device is busy
+- `HAL_TIMEOUT`: Operation timed out
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- InvenSense TDK for the MPU6500 sensor
+- STMicroelectronics for the STM32 HAL drivers 
+
