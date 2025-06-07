@@ -6,10 +6,8 @@ A lightweight, easy-to-use STM32 library for interfacing with the InvenSense TDK
 
 - Initialize and configure MPU6500 via I²C  
 - Read 3-axis accelerometer and gyroscope data   
-- Configure full-scale ranges (±2/4/8/16 g; ±250/500/1000/2000 °/s)  
-- Digital low-pass filter and sample rate setup  
-- FIFO buffer management for burst data reads  
-- Data-ready and motion-detect interrupt handling  
+- Configure full-scale ranges (±2/4/8/16 g; ±250/500/1000/2000 °/s)
+- Data-ready interrupt handling  
 - Compatible with STM32 HAL drivers  
 
 ## Prerequisites
