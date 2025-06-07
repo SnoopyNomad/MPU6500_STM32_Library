@@ -27,3 +27,7 @@ A lightweight, easy-to-use STM32 library for interfacing with the InvenSense TDK
 2. Copy mpu6500.c and mpu6500.h into your source and include folders.
 
 3. Configure your pin definitions in main.h.
+
+## Usage
+
+### Initialization
