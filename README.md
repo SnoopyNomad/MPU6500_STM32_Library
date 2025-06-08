@@ -41,7 +41,7 @@ A lightweight, easy-to-use STM32 library for interfacing with the InvenSense TDK
 
 1. Clone this repository into your project directory:  
 ```bash
-git clone https://github.com/<your-username>/mpu6500-stm32-library.git
+git clone https://github.com/SnoopyNomad/MPU6500_STM32_Library.git
 ```
 
 2. Copy the following files into your project:
