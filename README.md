@@ -1,6 +1,6 @@
 # MPU6500 STM32 Library
 
-A lightweight, easy-to-use STM32 library for interfacing with the InvenSense TDK MPU6500 6-axis motion tracking device. This library provides functions to read accelerometer, gyroscope, temperature sensor data, and generate interrupts—allowing you to build motion-sensing and stabilization applications on STM32 microcontrollers.
+A lightweight and easy-to-integrate C library for interfacing the InvenSense MPU6500 6-axis motion sensor with STM32 microcontrollers using the STM32Cube HAL. This library allows you to initialize the sensor, read accelerometer, gyroscope, and temperature sensor data, and configure sensor settings for real-time motion tracking applications.
 
 ## Table of Contents
 - [Features](#features)
