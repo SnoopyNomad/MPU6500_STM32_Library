@@ -92,9 +92,9 @@ int main(void)
 }
 ```
 2. **Include the Library**: Add the library header to your project.
-   ```c
-   #include "mpu6500.h"
-   ```
+```c
+#include "mpu6500.h"
+```
 
 3. Initialize the MPU6500:
 ```c
