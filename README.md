@@ -210,11 +210,11 @@ All functions return `HAL_StatusTypeDef`:
 - `HAL_BUSY`: Device is busy
 - `HAL_TIMEOUT`: Operation timed out
 
-Common error scenarios:
+Common issues:
 - I²C communication failure
 - Invalid device address
-- Sensor not responding
-- Configuration errors
+- Sensor unresponsive
+- Misconfiguration
 
 ## Contributing
 
@@ -227,11 +227,11 @@ Contributions are welcome! Please follow these steps:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT – see [LICENSE](LICENSE).
 
 ## Acknowledgments
 
-- InvenSense TDK for the MPU6500 sensor
-- STMicroelectronics for the STM32 HAL drivers
-- All contributors who have helped improve this library
+- InvenSense TDK (MPU6500)
+- STMicroelectronics (HAL drivers)
+- Community contributors
 
