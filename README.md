@@ -1,6 +1,6 @@
 # MPU6500 STM32 Library
 
-A lightweight, easy-to-use STM32 library for interfacing with the InvenSense TDK MPU6500 6-axis motion tracking device. This library provides functions to read accelerometer and gyroscope data, and generate interrupts—allowing you to build motion-sensing and stabilization applications on STM32 microcontrollers.
+A lightweight, easy-to-use STM32 library for interfacing with the InvenSense TDK MPU6500 6-axis motion tracking device. This library provides functions to read accelerometer, gyroscope, temperature sensor data, and generate interrupts—allowing you to build motion-sensing and stabilization applications on STM32 microcontrollers.
 
 ## Table of Contents
 - [Features](#features)
@@ -40,19 +40,13 @@ A lightweight, easy-to-use STM32 library for interfacing with the InvenSense TDK
 ## Installation
 
 1. Clone this repository into your project directory:  
-   ```bash
-   git clone https://github.com/<your-username>/mpu6500-stm32-library.git
-   ```
+```bash
+git clone https://github.com/<your-username>/mpu6500-stm32-library.git
+```
 
 2. Copy the following files into your project:
    - `mpu6500.c` → Your project's source folder
    - `mpu6500.h` → Your project's include folder
-
-3. Configure your pin definitions in `main.h`:
-   ```c
-   #define MPU6500_INT_Pin        GPIO_PIN_0
-   #define MPU6500_INT_GPIO_Port  GPIOA
-   ```
 
 ## Configuration
 
