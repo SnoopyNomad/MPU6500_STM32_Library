@@ -6,7 +6,7 @@
  *          operations.
  * @author Cengiz Sinan Kostakoglu
  * @version 1.0
- * @date 2025-06-07
+ * @date 2025-06-08
  */
 
 #include "mpu6500.h"
@@ -151,14 +151,25 @@ static inline HAL_StatusTypeDef MPU6500_Reset(void){
 }
 
 /**
+ * @brief Configure the clock source of the MPU6500
+ * @return HAL_StatusTypeDef HAL_OK on success, error on failure
+ */
+static inline HAL_StatusTypeDef MPU6500_ConfigureClock(void){
+    return MPU6500_WriteRegister(PWR_MGMT_1, 0x01); // SLEEP[6] | CLKSEL[2:0]
+}
+
+/**
  * @brief Configure the accelerometer
  * @return HAL_StatusTypeDef HAL_OK on success, error on failure
+ * @note Configuration sequence:
+ *       1. Configure accelerometer full scale range
+ *       2. Configure accelerometer low pass filter
  */
 static inline HAL_StatusTypeDef MPU6500_ConfigureAccel(void){
     HAL_StatusTypeDef status;
-    status = MPU6500_WriteRegister(ACCEL_CONFIG, 0x18); // Full scale range = ±16g
+    status = MPU6500_WriteRegister(ACCEL_CONFIG, 0x18); // ACCEL_FS_SEL[4:3] = 11 (±16g), bits [2:0] reserved (0)
     if(status != HAL_OK) return status;
-    status = MPU6500_WriteRegister(ACCEL_CONFIG_2, 0x04); // Accelerometer low pass filter -> Bandwidth = 20Hz | Data Rate = 1kHz
+    status = MPU6500_WriteRegister(ACCEL_CONFIG_2, 0x04); // ACCEL_DLPF_CFG[2:0] = 100 (20Hz, 1kHz)
     if(status != HAL_OK) return status;
     return HAL_OK;
 }
@@ -166,15 +177,58 @@ static inline HAL_StatusTypeDef MPU6500_ConfigureAccel(void){
 /**
  * @brief Configure the gyroscope
  * @return HAL_StatusTypeDef HAL_OK on success, error on failure
+ * @note Configuration sequence:
+ *       1. Configure gyroscope full scale range
+ *       2. Configure gyroscope low pass filter
  */
 static inline HAL_StatusTypeDef MPU6500_ConfigureGyro(void){
     HAL_StatusTypeDef status;
-    status = MPU6500_WriteRegister(GYRO_CONFIG, 0x18); // Full scale range = ±2000dps
+    status = MPU6500_WriteRegister(GYRO_CONFIG, 0x18); // GYRO_FS_SEL[1:0] = 11 | FCHOICE_B[1:0] = 00 || Full scale range = ±2000dps
     if(status != HAL_OK) return status;
-    status = MPU6500_WriteRegister(GYRO_CONFIG_2, 0x04); // Gyroscope low pass filter -> Bandwidth = 20Hz | Data Rate = 1kHz
+    status = MPU6500_WriteRegister(CONFIG, 0x04); // DLPF_CFG[2:0] = 100 || Gyroscope low pass filter Bandwidth = 20Hz | Data Rate = 1kHz
     if(status != HAL_OK) return status;
     return HAL_OK;  
 } 
+
+/**
+ * @brief Disable the gyroscope of the MPU6500
+ * @return HAL_StatusTypeDef HAL_OK on success, error on failure
+ */
+static inline HAL_StatusTypeDef MPU6500_DisableGyro(void){
+    return MPU6500_WriteRegister(PWR_MGMT_2, 0x07); // DISABLE_XG[2]|DISABLE_YG[1]|DISABLE_ZG[0]
+}
+
+/**
+ * @brief Enable the temperature sensor of the MPU6500
+ * @return HAL_StatusTypeDef HAL_OK on success, error on failure
+ */
+static inline HAL_StatusTypeDef MPU6500_EnableTemperatureSensor(void){
+    HAL_StatusTypeDef status;
+    uint8_t regData;
+    // Read current PWR_MGMT_1 register
+    status = MPU6500_ReadRegister(PWR_MGMT_1, &regData);
+    if(status != HAL_OK) return status;
+    // Clear TEMP_DIS bit (bit 4)
+    regData &= ~(1 << 4);
+    // Write back to PWR_MGMT_1
+    return MPU6500_WriteRegister(PWR_MGMT_1, regData);
+}
+
+/**
+ * @brief Disable the temperature sensor of the MPU6500
+ * @return HAL_StatusTypeDef HAL_OK on success, error on failure
+ */
+static inline HAL_StatusTypeDef MPU6500_DisableTemperatureSensor(void){
+    HAL_StatusTypeDef status;
+    uint8_t regData;
+    // Read current PWR_MGMT_1 register
+    status = MPU6500_ReadRegister(PWR_MGMT_1, &regData);
+    if(status != HAL_OK) return status;
+    // Set TEMP_DIS bit (bit 4)
+    regData |= (1 << 4);
+    // Write back to PWR_MGMT_1
+    return MPU6500_WriteRegister(PWR_MGMT_1, regData);
+}   
 
 /**
  * @brief Configure the interrupt pin
@@ -182,7 +236,7 @@ static inline HAL_StatusTypeDef MPU6500_ConfigureGyro(void){
  */ 
 static inline HAL_StatusTypeDef MPU6500_ConfigureInterrupts(void){
     HAL_StatusTypeDef status;
-    status = MPU6500_WriteRegister(INT_PIN_CFG, 0xB0); // ACTL[7]|OPEN[6]|LATCH_INT_EN[5]|INT_ANYRD_2CLEAR[4]
+    status = MPU6500_WriteRegister(INT_PIN_CFG, 0xB0); // ACTL[7] | OPEN[6] | LATCH_INT_EN[5] | INT_ANYRD_2CLEAR[4]
     if(status != HAL_OK) return status;
     return HAL_OK;
 }
@@ -193,9 +247,10 @@ static inline HAL_StatusTypeDef MPU6500_ConfigureInterrupts(void){
  * @note Configuration sequence:
  *       1. Reset device
  *       2. Wake up and configure clock
- *       3. Disable gyroscope
- *       4. Configure accelerometer (±16g, 20Hz bandwidth)
- *       5. Configure interrupt pin
+ *       3. Configure accelerometer (±16g, 20Hz bandwidth)
+ *       4. Configure gyroscope (±2000dps, 20Hz bandwidth)
+ *       5. Enable temperature sensor
+ *       6. Configure interrupt pin
  */
 HAL_StatusTypeDef MPU6500_Init(void){
     HAL_StatusTypeDef status;
@@ -203,19 +258,19 @@ HAL_StatusTypeDef MPU6500_Init(void){
     status = MPU6500_Reset();
     if (status != HAL_OK) return status;
     HAL_Delay(100); // Wait for reset to complete
-    // 2. Wake up device, select clock source and disable Temperature Sensor
-    status = MPU6500_WriteRegister(PWR_MGMT_1, 0x09); // TEMP_DIS[3]|CLKSEL[2:0]
+    // 2. Wake up device and select clock source
+    status = MPU6500_ConfigureClock();
     if(status != HAL_OK) return status;
-    /* 3. Disable Gyroscope
-    status = MPU6500_WriteRegister(PWR_MGMT_2, 0x07); // DISABLE_XG[2]|DISABLE_YG[1]|DISABLE_ZG[0]
-    if(status != HAL_OK) return status; */
-    // 4. Configure Accelerometer
+    // 3. Configure Accelerometer
     status = MPU6500_ConfigureAccel();
     if(status != HAL_OK) return status;
-    // 5. Configure Gyroscope
+    // 4. Configure Gyroscope
     status = MPU6500_ConfigureGyro();
     if(status != HAL_OK) return status;
-    // 5. Configure INT Pin (but don't enable interrupts yet)
+    // 5. Enable temperature sensor
+    status = MPU6500_EnableTemperatureSensor();
+    if(status != HAL_OK) return status; 
+    // 6. Configure INT Pin (but don't enable interrupts yet)
     status = MPU6500_ConfigureInterrupts();
     if(status != HAL_OK) return status;
     return HAL_OK;

@@ -6,7 +6,7 @@
  *          operations.
  * @author Cengiz Sinan Kostakoglu
  * @version 1.0
- * @date 2025-06-07
+ * @date 2025-06-08
  */
 
 #ifndef __MPU6500_H__
@@ -16,18 +16,12 @@
 extern "C" {
 #endif
 
-/* For HAL functions and I2C initialization */
+/* For HAL functions and pin definitions */
 #include "main.h"
 
 /**
- * @brief Initialize the MPU6500 accelerometer
+ * @brief Initialize the MPU6500 accelerometer and gyroscope    
  * @return HAL_StatusTypeDef HAL_OK on success, error on failure
- * @note Configuration sequence:
- *       1. Reset device
- *       2. Wake up and configure clock
- *       3. Disable gyroscope
- *       4. Configure accelerometer (±16g, 20Hz bandwidth)
- *       5. Configure interrupt pin
  */
 HAL_StatusTypeDef MPU6500_Init(void);
 
@@ -73,6 +67,15 @@ HAL_StatusTypeDef MPU6500_ReadAccel(int16_t *x, int16_t *y, int16_t *z);
  *       Data is in 16-bit format, high byte first
  */
 HAL_StatusTypeDef MPU6500_ReadGyro(int16_t *x, int16_t *y, int16_t *z); 
+
+/**
+ * @brief Read temperature data from MPU6500
+ * @param temp Pointer to store temperature data
+ * @return HAL_StatusTypeDef HAL_OK on success, error on failure
+ * @note Reads 2 bytes starting from TEMP_OUT_H register
+ *       Data is in 16-bit format, high byte first
+ */
+HAL_StatusTypeDef MPU6500_ReadTemp(int16_t *temp);
 
 /**
  * @brief Put the MPU6500 into sleep mode to save power
