@@ -146,7 +146,10 @@ gyro_dps[1] = (float)gyro_y / 16.4f;
 gyro_dps[2] = (float)gyro_z / 16.4f;
 
 // Temperature conversion: T(°C) = (TEMP_OUT / 340) + 36.53
-temp_c = ((float)temperature / 340.0f) + 36.53f;
+// temp_c = ((float)temperature / 340.0f) + 36.53f;
+
+// Temperature conversion: T(°C) = (TEMP_OUT / 333.87) + 21
+temp_c = ((float)temperature) / 333.87f + 21.0f;
 ```
 
 ### Data Formats
