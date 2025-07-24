@@ -126,10 +126,7 @@ extern I2C_HandleTypeDef hi2c1;
  * @return HAL_StatusTypeDef HAL_OK on success, error on failure
  */
 static inline HAL_StatusTypeDef MPU6500_WriteRegister(uint8_t reg, uint8_t data){
-    uint8_t buffer[2];
-    buffer[0] = reg;
-    buffer[1] = data;
-    return HAL_I2C_Mem_Write(&hi2c1, (MPU6500_ADDR << 1), reg, I2C_MEMADD_SIZE_8BIT, buffer, 2, HAL_MAX_DELAY);
+    return HAL_I2C_Mem_Write(&hi2c1, (MPU6500_ADDR << 1), reg, I2C_MEMADD_SIZE_8BIT, &data, 1, HAL_MAX_DELAY);
 }
 
 /**
