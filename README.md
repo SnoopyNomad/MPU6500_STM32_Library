@@ -172,7 +172,7 @@ temp_c = ((float)temperature) / 333.87f + 21.0f;
 
 3. **Temperature Data**
    - Raw data range: -32768 to +32767
-   - Conversion formula: T(°C) = (TEMP_OUT / 340) + 36.53
+   - Conversion formula: T(°C) = (TEMP_OUT / 333.87) + 21
 
 ### Interrupt Handling
 
