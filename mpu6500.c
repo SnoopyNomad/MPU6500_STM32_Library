@@ -126,10 +126,7 @@ extern I2C_HandleTypeDef hi2c1;
  * @return HAL_StatusTypeDef HAL_OK on success, error on failure
  */
 static inline HAL_StatusTypeDef MPU6500_WriteRegister(uint8_t reg, uint8_t data){
-    uint8_t buffer[2];
-    buffer[0] = reg;
-    buffer[1] = data;
-    return HAL_I2C_Mem_Write(&hi2c1, (MPU6500_ADDR << 1), reg, I2C_MEMADD_SIZE_8BIT, buffer, 2, HAL_MAX_DELAY);
+    return HAL_I2C_Mem_Write(&hi2c1, (MPU6500_ADDR << 1), reg, I2C_MEMADD_SIZE_8BIT, &data, 1, HAL_MAX_DELAY);
 }
 
 /**
@@ -346,6 +343,28 @@ HAL_StatusTypeDef MPU6500_ReadGyro(int16_t *x, int16_t *y, int16_t *z){
     *z = (int16_t)((buffer[4] << 8) | buffer[5]);
     return HAL_OK;
 }       
+
+/**
+ * @brief Read temperature data from MPU6500
+ * @param[out] temp Pointer to store the raw temperature value (signed 16-bit)
+ * @return HAL_StatusTypeDef HAL_OK on success, error on failure
+ * @note Reads 2 bytes from TEMP_OUT_H and TEMP_OUT_L.
+ *       The value is in 16-bit signed format (big endian).
+ *       Conversion to Celsius: Temp(°C) = temp / 333.87 + 21
+ */
+HAL_StatusTypeDef MPU6500_ReadTemp(int16_t *temp){
+    HAL_StatusTypeDef status;
+    uint8_t buffer[2];
+
+    // Read 2 bytes starting from TEMP_OUT_H
+    status = HAL_I2C_Mem_Read(&hi2c2, (MPU6500_ADDR << 1), TEMP_OUT_H, I2C_MEMADD_SIZE_8BIT, buffer, 2, HAL_MAX_DELAY);
+    if (status != HAL_OK) return status;
+
+    // Combine bytes into signed 16-bit integer
+    *temp = (int16_t)((buffer[0] << 8) | buffer[1]);
+
+    return HAL_OK;
+}
 
 /**
  * @brief Put the MPU6500 into sleep mode to save power
